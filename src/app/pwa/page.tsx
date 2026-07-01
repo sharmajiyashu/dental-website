@@ -116,13 +116,26 @@ export default function PwaSimulator() {
 
   // Sync state to active user once loaded
   useEffect(() => {
-    if (isLoaded && users.length > 0) {
+    if (isLoaded) {
       const storedId = window.localStorage.getItem("hl_pwa_active_user");
-      const found = users.find(u => u.id === storedId);
-      if (found) {
-        setActiveUser(found);
+      if (storedId && users.length > 0) {
+        const found = users.find(u => u.id === storedId);
+        if (found) {
+          setActiveUser(found);
+          if (currentScreen === "Welcome" || currentScreen === "Login" || currentScreen === "Register" || currentScreen === "OTP") {
+            setCurrentScreen("Dashboard");
+          }
+        } else {
+          setActiveUser(null);
+          if (currentScreen === "Dashboard") {
+            setCurrentScreen("Welcome");
+          }
+        }
       } else {
-        setActiveUser(users[0]);
+        setActiveUser(null);
+        if (currentScreen === "Dashboard") {
+          setCurrentScreen("Welcome");
+        }
       }
     }
   }, [isLoaded, users]);
@@ -148,7 +161,7 @@ export default function PwaSimulator() {
     return () => clearInterval(interval);
   }, [currentScreen, otpTimer]);
 
-  if (!isLoaded || !activeUser) {
+  if (!isLoaded) {
     return (
       <div className="min-h-screen bg-[#0b0f19] flex flex-col items-center justify-center space-y-4">
         <div className="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin" />
@@ -159,6 +172,7 @@ export default function PwaSimulator() {
 
   // Handle Metrics update to sync with /admin
   const handleUpdateMetrics = () => {
+    if (!activeUser) return;
     const stepsVal = parseInt(inputSteps) || 0;
     const waterVal = parseInt(inputWater) || 0;
     const sleepVal = parseFloat(inputSleep) || 0;
@@ -191,6 +205,7 @@ export default function PwaSimulator() {
 
   // Toggle standard reminders
   const handleToggleReminder = (key: "drinkWater" | "morningWalk" | "takeMedicine" | "sleepEarly") => {
+    if (!activeUser) return;
     const updatedReminders = {
       ...activeUser.reminders,
       [key]: !activeUser.reminders[key]
@@ -235,11 +250,11 @@ export default function PwaSimulator() {
 
     // Save survey to admin dashboard state
     addSurveyResponse({
-      name: activeUser.name || "Anonymous User",
-      age: activeUser.age || "24",
-      gender: activeUser.gender || "Male",
-      education: "N/A",
-      occupation: activeUser.role || "User",
+      name: surveyName || activeUser?.name || "Anonymous User",
+      age: surveyAge || activeUser?.age || "24",
+      gender: surveyGender || activeUser?.gender || "Male",
+      education: surveyEducation || "N/A",
+      occupation: surveyOccupation || activeUser?.role || "User",
       answers: {
         brushFrequency: surveyBrush,
         useToothpaste: surveyToothpaste,
@@ -407,44 +422,13 @@ export default function PwaSimulator() {
   return (
     <div className={isMobile
       ? "w-full h-[100dvh] bg-slate-950 overflow-hidden flex flex-col font-sans"
-      : "min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 flex flex-col lg:flex-row items-center justify-center p-0 sm:p-6 md:p-12 overflow-x-hidden font-sans"
+      : "min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 flex flex-col items-center justify-center p-4 overflow-x-hidden font-sans"
     }>
-
-      {/* LEFT PANE FOR DESKTOP - DESCRIPTION */}
-      <div className="hidden lg:flex flex-col max-w-sm space-y-6 text-slate-100 pr-12">
-        <div className="flex items-center gap-2">
-          <div className="p-2.5 bg-teal-600 rounded-xl text-white">
-            <Activity className="w-6 h-6 animate-pulse" />
-          </div>
-          <span className="font-outfit font-extrabold text-2xl bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">
-            Healthy Life PWA
-          </span>
-        </div>
-        <div className="space-y-3">
-          <h2 className="text-3xl font-extrabold tracking-tight font-outfit text-white leading-tight">
-            Live Mobile Simulation
-          </h2>
-          <p className="text-slate-400 text-sm leading-relaxed">
-            Experience the complete native mobile screens flow in this responsive mockup. Any users registered or metrics tracked here sync directly to the <Link href="/admin" className="text-teal-400 font-bold hover:underline">Admin Panel</Link>.
-          </p>
-        </div>
-        <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl space-y-2.5">
-          <span className="text-xs font-bold text-teal-400 uppercase tracking-widest block">Installation</span>
-          <p className="text-xs text-slate-400">
-            This app is fully PWA-configured. You can click "Install App" or "Add to Home Screen" in your browser's address bar to launch it stand-alone!
-          </p>
-        </div>
-        <div className="flex items-center gap-4 text-xs text-slate-500">
-          <Link href="/" className="hover:text-slate-300 font-semibold underline">Back to Website</Link>
-          <span>•</span>
-          <Link href="/admin" className="hover:text-slate-300 font-semibold underline">Admin Dashboard</Link>
-        </div>
-      </div>
 
       {/* MOBILE DEVICE CONTAINER */}
       <div className={isMobile
         ? "dark w-full h-[100dvh] bg-slate-950 flex flex-col overflow-hidden relative"
-        : "dark w-full max-w-[412px] h-[100dvh] sm:h-[820px] bg-slate-950 sm:rounded-[2.5rem] sm:border-[6px] sm:border-slate-800 shadow-2xl relative flex flex-col overflow-hidden sm:ring-4 sm:ring-teal-500/10"
+        : "dark w-full max-w-[412px] h-[820px] bg-slate-950 rounded-[2.5rem] border-[6px] border-slate-800 shadow-2xl relative flex flex-col overflow-hidden ring-4 ring-teal-500/10"
       }>
 
         {/* Notch / Speaker header — only on desktop phone shell */}
@@ -466,7 +450,7 @@ export default function PwaSimulator() {
         )}
 
         {/* MAIN DISPLAY AREA */}
-        <div className="flex-1 overflow-y-auto pwa-scroll bg-slate-50 dark:bg-[#0b0f19] flex flex-col relative text-slate-900 dark:text-slate-100">
+        <div className="flex-1 overflow-y-auto pwa-scroll bg-slate-50 dark:bg-[#0b0f19] flex flex-col relative text-slate-900 dark:text-slate-100 safe-top">
 
           {/* SCREEN 1: WELCOME SCREEN */}
           {currentScreen === "Welcome" && (
@@ -594,7 +578,7 @@ export default function PwaSimulator() {
                     Verify OTP
                   </h2>
                   <p className="text-xs text-slate-400 mt-1">
-                    Enter the 6 digit code sent to {activeUser.mobile}
+                    Enter the 6 digit code sent to {authEmail || loginPhone || regPhone || "your device"}
                   </p>
                 </div>
 
@@ -1147,8 +1131,8 @@ export default function PwaSimulator() {
           )}
 
           {/* SCREEN 6: CORE APP DIALOG: MAIN DASHBOARD TABS SYSTEM */}
-          {currentScreen === "Dashboard" && (
-            <div className="flex-1 flex flex-col justify-between pb-16">
+          {currentScreen === "Dashboard" && activeUser && (
+            <div className="flex-1 flex flex-col justify-between pb-6">
 
               {/* TAB A: DASHBOARD HOME SCREEN */}
               {activeTab === "Home" && (
@@ -1679,37 +1663,40 @@ export default function PwaSimulator() {
                 </div>
               )}
 
-              {/* BOTTOM NAVIGATION BAR */}
-              <div className="absolute bottom-0 inset-x-0 h-16 bg-white dark:bg-[#0b0f19] border-t border-slate-200 dark:border-slate-800/60 flex justify-around items-center z-40">
-                {[
-                  { id: "Home", label: "Home", emoji: "🏠" },
-                  { id: "Learn", label: "Learn", emoji: "📚" },
-                  { id: "Track", label: "Track", emoji: "🎯" },
-                  { id: "Reminders", label: "Reminders", emoji: "🔔" },
-                  { id: "Profile", label: "Profile", emoji: "👤" }
-                ].map((tab) => {
-                  const isActive = activeTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id as any)}
-                      className="flex flex-col items-center justify-center w-14 h-full relative"
-                    >
-                      <span className={`text-xl transition-all duration-300 ${isActive ? "scale-110" : "grayscale opacity-50"}`}>
-                        {tab.emoji}
-                      </span>
-                      <span className={`text-[9px] mt-0.5 font-bold transition-colors duration-300 ${isActive ? "text-teal-600" : "text-slate-400"}`}>
-                        {tab.label}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
             </div>
           )}
 
         </div>
+
+        {/* BOTTOM NAVIGATION BAR */}
+        {currentScreen === "Dashboard" && activeUser && (
+          <div className="h-16 bg-white dark:bg-[#0b0f19] border-t border-slate-200 dark:border-slate-800/60 flex justify-around items-center z-40 shrink-0 safe-bottom">
+            {[
+              { id: "Home", label: "Home", emoji: "🏠" },
+              { id: "Learn", label: "Learn", emoji: "📚" },
+              { id: "Track", label: "Track", emoji: "🎯" },
+              { id: "Reminders", label: "Reminders", emoji: "🔔" },
+              { id: "Profile", label: "Profile", emoji: "👤" }
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className="flex flex-col items-center justify-center w-14 h-full relative"
+                >
+                  <span className={`text-xl transition-all duration-300 ${isActive ? "scale-110" : "grayscale opacity-50"}`}>
+                    {tab.emoji}
+                  </span>
+                  <span className={`text-[9px] mt-0.5 font-bold transition-colors duration-300 ${isActive ? "text-teal-600" : "text-slate-400"}`}>
+                    {tab.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
       </div>
 
     </div>

@@ -3,7 +3,8 @@
  * Interfaces with the backend at http://localhost:5000/v1/api
  */
 
-const BASE_URL = "http://localhost:5000/v1/api";
+// const BASE_URL = "http://localhost:5000/v1/api";
+const BASE_URL = "https://dental-backend-pink.vercel.app/v1/api";
 
 const getHeaders = (path: string) => {
   if (typeof window === "undefined") return { "Content-Type": "application/json" };

@@ -114,6 +114,20 @@ export default function PwaSimulator() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
+  // Detect real mobile device or installed PWA (standalone mode)
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+        || (window.navigator as any).standalone === true;
+      const isTouchDevice = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      setIsMobile(isStandalone || isTouchDevice);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Sync state to active user once loaded
   useEffect(() => {
     if (isLoaded) {
@@ -404,20 +418,6 @@ export default function PwaSimulator() {
       }
     }
   };
-
-  // Detect real mobile device or installed PWA (standalone mode)
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const checkMobile = () => {
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-        || (window.navigator as any).standalone === true;
-      const isTouchDevice = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      setIsMobile(isStandalone || isTouchDevice);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   return (
     <div className={isMobile

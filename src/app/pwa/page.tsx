@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAppState, User, Article } from "@/lib/state";
 import { api } from "@/lib/api";
 import {
@@ -390,8 +390,25 @@ export default function PwaSimulator() {
     }
   };
 
+  // Detect real mobile device or installed PWA (standalone mode)
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+        || (window.navigator as any).standalone === true;
+      const isTouchDevice = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      setIsMobile(isStandalone || isTouchDevice);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 flex flex-col lg:flex-row items-center justify-center p-0 sm:p-6 md:p-12 overflow-x-hidden font-sans">
+    <div className={isMobile
+      ? "w-full h-[100dvh] bg-slate-950 overflow-hidden flex flex-col font-sans"
+      : "min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 flex flex-col lg:flex-row items-center justify-center p-0 sm:p-6 md:p-12 overflow-x-hidden font-sans"
+    }>
 
       {/* LEFT PANE FOR DESKTOP - DESCRIPTION */}
       <div className="hidden lg:flex flex-col max-w-sm space-y-6 text-slate-100 pr-12">
@@ -425,14 +442,20 @@ export default function PwaSimulator() {
       </div>
 
       {/* MOBILE DEVICE CONTAINER */}
-      <div className="dark w-full max-w-[412px] h-[100dvh] sm:h-[820px] bg-slate-950 sm:rounded-[2.5rem] sm:border-[6px] sm:border-slate-800 shadow-2xl relative flex flex-col overflow-hidden sm:ring-4 sm:ring-teal-500/10">
+      <div className={isMobile
+        ? "dark w-full h-[100dvh] bg-slate-950 flex flex-col overflow-hidden relative"
+        : "dark w-full max-w-[412px] h-[100dvh] sm:h-[820px] bg-slate-950 sm:rounded-[2.5rem] sm:border-[6px] sm:border-slate-800 shadow-2xl relative flex flex-col overflow-hidden sm:ring-4 sm:ring-teal-500/10"
+      }>
 
-        {/* Notch / Speaker header */}
-        <div className="hidden sm:block absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-950 rounded-b-2xl z-50 flex justify-center items-center">
-          <div className="w-12 h-1 bg-slate-800 rounded-full mb-1" />
-        </div>
+        {/* Notch / Speaker header — only on desktop phone shell */}
+        {!isMobile && (
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-950 rounded-b-2xl z-50 flex justify-center items-center">
+            <div className="w-12 h-1 bg-slate-800 rounded-full mb-1" />
+          </div>
+        )}
 
-        {/* STATUS BAR MOCK */}
+        {/* STATUS BAR MOCK — only in desktop phone shell */}
+        {!isMobile && (
         <div className="h-10 pt-2 bg-white dark:bg-[#0b0f19] px-6 flex justify-between items-center text-slate-800 dark:text-slate-200 text-xs select-none z-40 shrink-0 font-medium">
           <span>9:41</span>
           <div className="flex items-center gap-1.5 font-bold">
@@ -440,9 +463,10 @@ export default function PwaSimulator() {
             <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" /></svg>
           </div>
         </div>
+        )}
 
         {/* MAIN DISPLAY AREA */}
-        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-[#0b0f19] flex flex-col relative text-slate-900 dark:text-slate-100">
+        <div className="flex-1 overflow-y-auto pwa-scroll bg-slate-50 dark:bg-[#0b0f19] flex flex-col relative text-slate-900 dark:text-slate-100">
 
           {/* SCREEN 1: WELCOME SCREEN */}
           {currentScreen === "Welcome" && (

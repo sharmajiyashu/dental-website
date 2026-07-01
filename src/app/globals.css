@@ -112,3 +112,37 @@ body {
 .pulse-soft {
   animation: pulse-soft 3s infinite ease-in-out;
 }
+
+/* ========== PWA / Mobile Specific Styles ========== */
+
+/* Full-height fix for mobile browsers with address bar */
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Safe area insets (iPhone notch / Dynamic Island support) */
+.safe-top    { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.safe-left   { padding-left: env(safe-area-inset-left); }
+.safe-right  { padding-right: env(safe-area-inset-right); }
+
+/* Remove tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+input, textarea, select, button {
+  -webkit-touch-callout: default;
+}
+
+/* Prevent pull-to-refresh bounce */
+body {
+  overscroll-behavior-y: none;
+}
+
+/* Smooth scrolling inside PWA screens */
+.pwa-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}

@@ -440,13 +440,13 @@ export default function PwaSimulator() {
 
         {/* STATUS BAR MOCK — only in desktop phone shell */}
         {!isMobile && (
-        <div className="h-10 pt-2 bg-white dark:bg-[#0b0f19] px-6 flex justify-between items-center text-slate-800 dark:text-slate-200 text-xs select-none z-40 shrink-0 font-medium">
-          <span>9:41</span>
-          <div className="flex items-center gap-1.5 font-bold">
-            <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.07 19.58 10.49 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z" /></svg>
-            <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" /></svg>
+          <div className="h-10 pt-2 bg-white dark:bg-[#0b0f19] px-6 flex justify-between items-center text-slate-800 dark:text-slate-200 text-xs select-none z-40 shrink-0 font-medium">
+            <span>9:41</span>
+            <div className="flex items-center gap-1.5 font-bold">
+              <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.07 19.58 10.49 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z" /></svg>
+              <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" /></svg>
+            </div>
           </div>
-        </div>
         )}
 
         {/* MAIN DISPLAY AREA */}
